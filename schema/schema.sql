@@ -13,7 +13,11 @@ CREATE TABLE Game (
 	description VARCHAR2(2000) NOT NULL,
 	bggscore NUMBER(4,2) NOT NULL,
 	gametype VARCHAR2(30) NOT NULL,
-	designerid NUMBER(6) NOT NULL REFERENCES Person);
+	designerid NUMBER(6) NOT NULL REFERENCES Person,
+	minplayers NUMBER(2) NOT NULL,
+	maxplayers NUMBER(2) NOT NULL,
+	avgplaytime NUMBER(4) NOT NULL,
+	complexity NUMBER(3,2) NOT NULL);
 
 CREATE TABLE Rating (
 	value NUMBER(2) NOT NULL,
