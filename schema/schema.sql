@@ -61,12 +61,12 @@ CREATE TABLE GameCategory (
 
 CREATE TABLE GameMechanism (
 	gameid NUMBER(6) NOT NULL REFERENCES Game,
-	mechanismid  NUMBER(6) NOT NULL REFERENCES Category,
+	mechanismid  NUMBER(6) NOT NULL REFERENCES Mechanism,
 	PRIMARY KEY (gameid, mechanismid));
 
 CREATE TABLE GameFamily (
 	gameid NUMBER(6) NOT NULL REFERENCES Game,
-	familyid NUMBER(6) NOT NULL REFERENCES Category,
+	familyid NUMBER(6) NOT NULL REFERENCES Family,
 	PRIMARY KEY (gameid, familyid));
 
 CREATE TABLE GameType (
