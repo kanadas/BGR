@@ -9,19 +9,19 @@ def updatetable(cur, namelist, gameid, tablename, outtable, seqname):
     cur.execute("SELECT name, id FROM " + tablename + " WHERE name IN (%s)" % ','.join('"%s"' % name for name in tablename)) 
     rows = dict(cur.fetchall())
     for name in tablename:
-        if rows[name] : cur.execute('INSERT INTO ' + outgametable + ' VALUE (:1, :2)', gameid, rows[name])
+        if rows[name] : cur.execute('INSERT INTO ' + outgametable + ' VALUE (:1, :2)', (gameid, rows[name]))
         else :
             cur.execute('INSERT INTO ' + tablename + ' (name) VALUE (":1")', name)
             cur.execute('SELECT ' + seqname + '.currval FROM dual')
             tid = cur.fetch()[0]
-            cur.execute('INSERT INTO ' + outgametable + ' VALUE(:1, :2)', gameid, tid)
+            cur.execute('INSERT INTO ' + outgametable + ' VALUE(:1, :2)', (gameid, tid))
         
 
 
-con = cx_Oracle.connect('tk385674/tomkan81@labora.mimuw.edu.pl:1521/LABS')
+con = cx_Oracle.connect('tk385674/salamandra@labora.mimuw.edu.pl:1521/LABS')
 gamecur = con.cursor()
-gamecur.prepare("""INSERT INTO Game (name, year, description, bggscore, minplayers, maxplayers, avgplaytime, complexity) VALUES
-                (:1, :2, :3, :4, :5, :6, :7, :8)""")
+gamecur.prepare("""INSERT INTO Game (name, year, description, bggscore, minplayers, maxplayers, avgplaytime, complexity, designerid) VALUES
+                (:1, :2, :3, :4, :5, :6, :7, :8, :9)""")
 cur = con.cursor()
 
 
@@ -58,12 +58,18 @@ while pagenum <= 1: #148:
         categories = list(map(getstring, game.find_all('boardgamecategory')))
         mechanisms = list(map(getstring, game.find_all('boardgamemechanic')))
         families = list(map(getstring, game.find_all('boardgamefamily')))
-        gamecur.execute(None, name, year, description, bggscore, minplayers, maxplayers, playingtime, complexity) 
+        cur.execute('SELECT id FROM Person WHERE name = "' + designer + '"')
+        desid = cur.fetch()[0]
+        if not desid:
+            cur.execute('INSERT INTO Person (name) VALUE ("' + designer + '")')
+            cur.execute('SELECT PersonSeq.currval FROM dual')
+            desid = cur.fetch()[0]
+        gamecur.execute(None, (name, year, description, score, minplayers, maxplayers, playingtime, complexity, desid)) 
         cur.execute('SELECT GameSeq.currval FROM dual')
         gameid = cur.fetch()[0]
         updatetable(cur, types, gameid, 'Types', 'GameType (gameid, typeid)', 'TypesSeq')
         updatetable(cur, publishers, gameid, 'Publisher', 'GamePublisher (gameid, publisherid)', 'PublisherSeq')
-        updatetable(cur, artists, gameid, 'Artist', 'GameArtist (gameid, artistid)', 'ArtistSeq')
+        updatetable(cur, artists, gameid, 'Person', 'GameArtist (gameid, artistid)', 'PersonSeq')
         updatetable(cur, categories, gameid, 'Category', 'GameCategory (gameid, categoryid)', 'CategorySeq')
         updatetable(cur, mechanisms, gameid, 'Mechanism', 'GameMechanism (gameid, mechanismid)', 'MechanismSeq')
         updatetable(cur, families, gameid, 'Family', 'GameFamily (gameid, familyid)', 'FamilySeq')
