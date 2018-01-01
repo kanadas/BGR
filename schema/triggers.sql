@@ -60,3 +60,12 @@ BEGIN
 	SELECT FamilySeq.nextval INTO :NEW.id FROM dual;
 END;
 /
+
+CREATE SEQUENCE TypesSeq START WITH 1 INCREMENT BY 1;
+CREATE TRIGGER types_in_trigger
+BEFORE INSERT ON Types
+FOR EACH ROW
+BEGIN
+	SELECT TypesSeq.nextval INTO :NEW.id FROM dual;
+END;
+/
