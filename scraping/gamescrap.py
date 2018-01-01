@@ -1,10 +1,11 @@
-import requests
 from bs4 import BeautifulSoup
+import re
 
-def getlinks():
+def getids():
     urlpref = "https://boardgamegeek.com/browse/boardgame/page/"
     pagenum = 1
-    links = [];
+    ids = [];
+    regex = re.compile('https://boardgamegeek.com/boardgame/(\d+).*')
     while pagenum <= 148:
         page = requests.get(urlpref + str(pagenum))
         soup = BeautifulSoup(page.content, 'html.parser')
@@ -13,13 +14,5 @@ def getlinks():
         pagenum += 1
     return links
 
-def scrapgame(url):
-    page = requests.get(url);
-    soup = BeautifulSoup(page.content, 'html.parser')
-
-    print(soup.find('div', id='mainbody').prettify())
-
-#links = getlinks()
-
-scrapgame('https://boardgamegeek.com/boardgame/182028/through-ages-new-story-civilization')
+links = getlinks()
 
