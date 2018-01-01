@@ -12,7 +12,6 @@ CREATE TABLE Game (
 	year NUMBER(4) NOT NULL,
 	description VARCHAR2(2000) NOT NULL,
 	bggscore NUMBER(4,2) NOT NULL,
-	gametype VARCHAR2(30) NOT NULL,
 	designerid NUMBER(6) NOT NULL REFERENCES Person,
 	minplayers NUMBER(2) NOT NULL,
 	maxplayers NUMBER(2) NOT NULL,
@@ -51,6 +50,10 @@ CREATE TABLE Family (
 	id NUMBER(6) NOT NULL PRIMARY KEY,
 	name VARCHAR2(100) NOT NULL);
 
+CREATE TABLE Types (
+	id NUMBER(6) NOT NULL PRIMARY KEY,
+	name VARCHAR2(100) NOT NULL);
+
 CREATE TABLE GameCategory (
 	gameid NUMBER(6) NOT NULL REFERENCES Game,
 	categoryid NUMBER(6) NOT NULL REFERENCES Category,
@@ -65,3 +68,8 @@ CREATE TABLE GameFamily (
 	gameid NUMBER(6) NOT NULL REFERENCES Game,
 	familyid NUMBER(6) NOT NULL REFERENCES Category,
 	PRIMARY KEY (gameid, familyid));
+
+CREATE TABLE GameType (
+	gameid NUMBER(6) NOT NULL REFERENCES Game,
+	typeid NUMBER(6) NOT NULL REFERENCES Types,
+	PRIMARY KEY (gameid, typeid));	
