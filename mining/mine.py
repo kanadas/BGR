@@ -100,4 +100,4 @@ gamecur.close()
 cur.close()
 con.close()
 
-print "FINISHED"
+print("FINISHED")
