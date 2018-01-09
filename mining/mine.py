@@ -3,24 +3,32 @@ from bs4 import BeautifulSoup
 import re
 import cx_Oracle
 import os
+from unidecode import unidecode
 
 #os.environ["NLS_LANG"] = "AMERICAN_AMERICA.EE8ISO8859P2"
 os.environ["NLS_LANG"] = ".AL32UTF8"
 
+TAGID = {"Type" : 1, "Category" : 2, "Mechanism" : 3, "Family" : 4}
+
 def getstring(x): return x.string.replace("'", "''")
 
-def updatetable(cur, namelist, gameid, tablename, outtable, seqname):
+def updatetable(cur, namelist, gameid, tablename, outtable, seqname, tagtype = None):
+    andtype = ""
+    typ = ""
+    typnum = ""
+    if tagtype: 
+        andtype = " AND tagtype = " + str(tagtype)
+        typ = ", type"
+        typnum = ", " + str(tagtype)
 
-    #print("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")")
+    print("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")" + andtype)
 
-    cur.execute("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")")
+    cur.execute("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")" + andtype)
     rows = dict(list(map(lambda p: (p[0].replace("'", "''"), p[1]), cur.fetchall())))
-    print(rows)
     for name in namelist:
         if rows.get(name) : cur.execute('INSERT INTO ' + outtable + ' VALUES (:1, :2)', (gameid, rows[name]))
         else :
-            print(name)
-            cur.execute('INSERT INTO ' + tablename + " (name) VALUES ('" + name + "')")
+            cur.execute('INSERT INTO ' + tablename + " (name" + typ + ") VALUES ('" + name + "'" + typnum + ")")
             cur.execute('SELECT ' + seqname + '.currval FROM dual')
             tid = cur.fetchone()[0]
             cur.execute('INSERT INTO ' + outtable + ' VALUES (:1, :2)', (gameid, tid))
@@ -38,7 +46,7 @@ urlpref = "https://boardgamegeek.com/browse/boardgame/page/"
 pagenum = 1
 ids = [];
 regex = re.compile('/boardgame/(\d+).*')
-while pagenum <= 148:
+while pagenum <= 4: #148:
     link ='https://www.boardgamegeek.com/xmlapi/boardgame/'
     page = requests.get(urlpref + str(pagenum))
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -83,12 +91,12 @@ while pagenum <= 148:
         gamecur.execute(None, (name, year, description, score, minplayers, maxplayers, playingtime, complexity, desid)) 
         cur.execute('SELECT GameSeq.currval FROM dual')
         gameid = cur.fetchone()[0]
-        if types: updatetable(cur, types, gameid, 'Types', 'GameType (gameid, typeid)', 'TypesSeq')
+        if types: updatetable(cur, types, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Type'])
         if publishers: updatetable(cur, publishers, gameid, 'Publisher', 'GamePublisher (gameid, publisherid)', 'PublisherSeq')
         if artists: updatetable(cur, artists, gameid, 'Person', 'GameArtist (gameid, artistid)', 'PersonSeq')
-        if categories: updatetable(cur, categories, gameid, 'Category', 'GameCategory (gameid, categoryid)', 'CategorySeq')
-        if mechanisms: updatetable(cur, mechanisms, gameid, 'Mechanism', 'GameMechanism (gameid, mechanismid)', 'MechanismSeq')
-        if families: updatetable(cur, families, gameid, 'Family', 'GameFamily (gameid, familyid)', 'FamilySeq')
+        if categories: updatetable(cur, categories, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Category'])
+        if mechanisms: updatetable(cur, mechanisms, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Mechanism'])
+        if families: updatetable(cur, families, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Family'])
     pagenum += 1
 
 con.commit()
