@@ -1,6 +1,16 @@
 <?php include 'header.php'; 
-if($_GET['error'] == 'server')
-	echo "<a id='servererror' class='error'>Server error occured</a>";
+	if(isset($_GET['error']))
+	{
+		echo "<a class='error'>";
+		switch ($_GET['error'])
+		{
+			case "server": echo "Server error occured"; break;
+			case "login": echo "Login or password incorrect"; break;
+			case "register": echo "User with this login already exists"; break;
+			default: echo "Unknown error occured"; break;
+		}
+		"</a>";
+	}
 ?>
 <form id='login' action='login.php' method='POST' accept-charset='ISO-8859-1'>
 	<legend>Login/Register</legend>
