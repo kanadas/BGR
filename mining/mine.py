@@ -5,8 +5,8 @@ import cx_Oracle
 import os
 from unidecode import unidecode
 
-#os.environ["NLS_LANG"] = "AMERICAN_AMERICA.EE8ISO8859P2"
-os.environ["NLS_LANG"] = ".AL32UTF8"
+os.environ["NLS_LANG"] = "AMERICAN_AMERICA.EE8ISO8859P2"
+#os.environ["NLS_LANG"] = ".AL32UTF8"
 
 TAGID = {"Type" : 1, "Category" : 2, "Mechanism" : 3, "Family" : 4}
 
@@ -18,17 +18,17 @@ def updatetable(cur, namelist, gameid, tablename, outtable, seqname, tagtype = N
     typnum = ""
     if tagtype: 
         andtype = " AND tagtype = " + str(tagtype)
-        typ = ", type"
+        typ = ", tagtype"
         typnum = ", " + str(tagtype)
 
-    print("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")" + andtype)
+    #print("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")" + andtype)
 
-    cur.execute("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")" + andtype)
+    cur.execute(unidecode("SELECT name, id FROM " + tablename + " WHERE name IN (" + ','.join("'" + name + "'" for name in namelist) + ")" + andtype))
     rows = dict(list(map(lambda p: (p[0].replace("'", "''"), p[1]), cur.fetchall())))
     for name in namelist:
-        if rows.get(name) : cur.execute('INSERT INTO ' + outtable + ' VALUES (:1, :2)', (gameid, rows[name]))
+        if rows.get(unidecode(name)) : cur.execute('INSERT INTO ' + outtable + ' VALUES (:1, :2)', (gameid, rows[unidecode(name)]))
         else :
-            cur.execute('INSERT INTO ' + tablename + " (name" + typ + ") VALUES ('" + name + "'" + typnum + ")")
+            cur.execute(unidecode('INSERT INTO ' + tablename + " (name" + typ + ") VALUES ('" + name + "'" + typnum + ")"))
             cur.execute('SELECT ' + seqname + '.currval FROM dual')
             tid = cur.fetchone()[0]
             cur.execute('INSERT INTO ' + outtable + ' VALUES (:1, :2)', (gameid, tid))
@@ -46,16 +46,15 @@ urlpref = "https://boardgamegeek.com/browse/boardgame/page/"
 pagenum = 1
 ids = [];
 regex = re.compile('/boardgame/(\d+).*')
-while pagenum <= 4: #148:
+while pagenum <= 3: #149:
     link ='https://www.boardgamegeek.com/xmlapi/boardgame/'
     page = requests.get(urlpref + str(pagenum))
     soup = BeautifulSoup(page.content, 'html.parser')
     tags = soup.find('table', id='collectionitems').find_all('td', class_='collection_objectname')
-    ids += [re.search(regex, tag.a['href']).group(1) for tag in tags]
+    ids = [re.search(regex, tag.a['href']).group(1) for tag in tags]
     for i in ids: link += i + ','
     xml = requests.get(link + '?stats=1')
     if xml.status_code != 200:
-        print("Wrong status code (" + str(xml.status_code) + ") for page: " + str(pagenum))
         continue
     soup = BeautifulSoup(xml.content, 'xml')
     games = soup.find_all('boardgame')
@@ -63,9 +62,6 @@ while pagenum <= 4: #148:
         name = game.find('name', primary='true')
         if not name: continue
         name = name.string.replace("'", "''")
-
-        #print(name)
-
         minplayers = game.find('minplayers').string
         maxplayers = game.find('maxplayers').string
         playingtime = game.find('playingtime').string
@@ -81,14 +77,14 @@ while pagenum <= 4: #148:
         categories = list(map(getstring, game.find_all('boardgamecategory')))
         mechanisms = list(map(getstring, game.find_all('boardgamemechanic')))
         families = list(map(getstring, game.find_all('boardgamefamily')))
-        cur.execute("SELECT id FROM Person WHERE name = '" + designer + "'")
+        cur.execute(unidecode("SELECT id FROM Person WHERE name = '" + designer + "'"))
         desid = cur.fetchone()
         if not desid:
-            cur.execute("INSERT INTO Person (name) VALUES ('" + designer + "')")
-            cur.execute('SELECT PersonSeq.currval FROM dual')
+            cur.execute(unidecode("INSERT INTO Person (name) VALUES ('" + designer + "')"))
+            cur.execute(unidecode('SELECT PersonSeq.currval FROM dual'))
             desid = cur.fetchone()[0]
         else: desid = desid[0]
-        gamecur.execute(None, (name, year, description, score, minplayers, maxplayers, playingtime, complexity, desid)) 
+        gamecur.execute(None, (unidecode(name), year, unidecode(description), score, minplayers, maxplayers, playingtime, complexity, desid)) 
         cur.execute('SELECT GameSeq.currval FROM dual')
         gameid = cur.fetchone()[0]
         if types: updatetable(cur, types, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Type'])
@@ -103,3 +99,5 @@ con.commit()
 gamecur.close()
 cur.close()
 con.close()
+
+print("FINISHED")
