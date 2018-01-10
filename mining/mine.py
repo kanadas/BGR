@@ -46,7 +46,7 @@ urlpref = "https://boardgamegeek.com/browse/boardgame/page/"
 pagenum = 1
 ids = [];
 regex = re.compile('/boardgame/(\d+).*')
-while pagenum <= 3: #149:
+while pagenum <= 100: #149:
     link ='https://www.boardgamegeek.com/xmlapi/boardgame/'
     page = requests.get(urlpref + str(pagenum))
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -93,6 +93,7 @@ while pagenum <= 3: #149:
         if categories: updatetable(cur, categories, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Category'])
         if mechanisms: updatetable(cur, mechanisms, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Mechanism'])
         if families: updatetable(cur, families, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Family'])
+    print(pagenum)
     pagenum += 1
 
 con.commit()
