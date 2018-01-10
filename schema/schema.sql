@@ -3,17 +3,13 @@ CREATE TABLE Users (
 	login NVARCHAR2(100) NOT NULL UNIQUE,
 	pass NVARCHAR2(32) NOT NULL);
 
-CREATE TABLE Person (
-	id NUMBER(6) NOT NULL PRIMARY KEY,
-	name NVARCHAR2(100) NOT NULL UNIQUE);
-
 CREATE TABLE Game (
 	id NUMBER(6) NOT NULL PRIMARY KEY,
 	name NVARCHAR2(100) NOT NULL UNIQUE,
 	year NUMBER(4) NOT NULL,
 	description NCLOB NOT NULL,
 	bggscore NUMBER(4,2) NOT NULL,
-	designerid NUMBER(6) NOT NULL REFERENCES Person,
+	designer NVARCHAR2(100),
 	minplayers NUMBER(2) NOT NULL,
 	maxplayers NUMBER(2) NOT NULL,
 	avgplaytime NUMBER(4) NOT NULL,
@@ -33,11 +29,6 @@ CREATE TABLE GamePublisher (
 	gameid NUMBER(6) NOT NULL REFERENCES Game,
 	publisherid NUMBER(6) NOT NULL REFERENCES Publisher,
 	PRIMARY KEY (gameid, publisherid));
-
-CREATE TABLE GameArtist (
-	gameid NUMBER(6) NOT NULL REFERENCES Game,
-	artistid NUMBER(6) NOT NULL REFERENCES Person,
-	PRIMARY KEY (gameid, artistid));
 
 CREATE TABLE TagType (
 	id NUMBER(3) NOT NULL PRIMARY KEY,

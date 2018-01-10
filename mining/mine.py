@@ -37,7 +37,7 @@ def updatetable(cur, namelist, gameid, tablename, outtable, seqname, tagtype = N
 
 con = cx_Oracle.connect('tk385674/salamandra@labora.mimuw.edu.pl:1521/LABS')
 gamecur = con.cursor()
-gamecur.prepare("""INSERT INTO Game (name, year, description, bggscore, minplayers, maxplayers, avgplaytime, complexity, designerid) VALUES
+gamecur.prepare("""INSERT INTO Game (name, year, description, bggscore, minplayers, maxplayers, avgplaytime, complexity, designer) VALUES
                 (:1, :2, :3, :4, :5, :6, :7, :8, :9)""")
 cur = con.cursor()
 
@@ -73,23 +73,14 @@ while pagenum <= 100: #149:
         complexity = game.find('averageweight').string
         types = list(map(getstring, game.find_all('boardgamesubdomain')))
         publishers = list(map(getstring, game.find_all('boardgamepublisher')))
-        artists = list(map(getstring, game.find_all('boardgameartist')))
         categories = list(map(getstring, game.find_all('boardgamecategory')))
         mechanisms = list(map(getstring, game.find_all('boardgamemechanic')))
         families = list(map(getstring, game.find_all('boardgamefamily')))
-        cur.execute(unidecode("SELECT id FROM Person WHERE name = '" + designer + "'"))
-        desid = cur.fetchone()
-        if not desid:
-            cur.execute(unidecode("INSERT INTO Person (name) VALUES ('" + designer + "')"))
-            cur.execute(unidecode('SELECT PersonSeq.currval FROM dual'))
-            desid = cur.fetchone()[0]
-        else: desid = desid[0]
-        gamecur.execute(None, (unidecode(name), year, unidecode(description), score, minplayers, maxplayers, playingtime, complexity, desid)) 
+        gamecur.execute(None, (unidecode(name), year, unidecode(description), score, minplayers, maxplayers, playingtime, complexity, unidecode(designer))) 
         cur.execute('SELECT GameSeq.currval FROM dual')
         gameid = cur.fetchone()[0]
         if types: updatetable(cur, types, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Type'])
         if publishers: updatetable(cur, publishers, gameid, 'Publisher', 'GamePublisher (gameid, publisherid)', 'PublisherSeq')
-        if artists: updatetable(cur, artists, gameid, 'Person', 'GameArtist (gameid, artistid)', 'PersonSeq')
         if categories: updatetable(cur, categories, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Category'])
         if mechanisms: updatetable(cur, mechanisms, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Mechanism'])
         if families: updatetable(cur, families, gameid, 'Tag', 'GameTag (gameid, tagid)', 'TagSeq', TAGID['Family'])
