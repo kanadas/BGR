@@ -1,4 +1,5 @@
 <?php
+	session_start();
 	ini_set('display_errors', 'On');
 	error_reporting(E_ALL | E_STRICT);
 	
@@ -35,7 +36,7 @@
 		if(!oci_execute($stmt)) return LoginError::DatabaseError;
 		if($id = oci_fetch_array($stmt))
 		{
-			$_SESSION['userid'] = $id;
+			$_SESSION['userid'] = $id[0];
 			return NULL;
 		}
 		return LoginError::UserNotExists;

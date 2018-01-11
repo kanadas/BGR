@@ -4,9 +4,9 @@ function linkGame($addr, $text)
 	return "<a href=$addr>$text</a>";
 }
 
-function drowGameTable($rows) 
+function drowGameTable($stmt) 
 {
-	echo <<<EOT 
+	echo <<<EOT
 <table>
 	<tr>
 		<th>BGG Rank</th>
@@ -16,16 +16,16 @@ function drowGameTable($rows)
 	</tr>
 EOT;
 	$i = 1;
-	foreach($rows as $row)
+	while($row = oci_fetch_array($stmt, OCI_BOTH))
 	{
-		$link = "game.php?id=".$row['id'];
-		echo "
-		<tr>
+		$link = "game.php?id=".$row['ID'];
+		echo "<tr>
 			<td>".linkGame($link, $i)."</td>
-			<td>".linkGame($link, $row['name'])."</td>
-			<td>".linkGame($link, $row['BGGScore'])."</td>
-			<td>".linkGame($link, $row['rating']."</td>
-		</tr>";
+			<td>".linkGame($link, $row['NAME'])."</td>
+			<td>".linkGame($link, $row['BGGSCORE'])."</td>
+			<td>".linkGame($link, isset($row['RATING']) ? $row['RATING'] : "-")."</td>
+			</tr>";
+		++$i;
 	}
 	echo "</table>";
 }
