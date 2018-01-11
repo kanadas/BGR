@@ -1,13 +1,28 @@
-<?php include 'header.php'; 
+<?php 
+	include 'header.php'; 
+	include 'loginerror.php';
 	if(isset($_GET['error']))
 	{
 		echo "<a class='error'>";
 		switch ($_GET['error'])
 		{
-			case "server": echo "Server error occured"; break;
-			case "login": echo "Login or password incorrect"; break;
-			case "register": echo "User with this login already exists"; break;
-			default: echo "Unknown error occured"; break;
+		case LoginError::WrongInput : 
+			echo "Enter login and password"; 
+			break;
+		case LoginError::LoginExists : 
+			echo "User with this login already exists"; 
+			break;
+		case LoginError::UserNotExists : 
+			echo "Login or password incorrect"; 
+			break;
+		case LoginError::ServerError :
+			echo "Server error occurred";
+			break;
+		case LoginError::DatabaseError :
+			echo "Database error occurred";
+			break;
+		default: 
+			echo "Unknown error occured"; 
 		}
 		"</a>";
 	}
