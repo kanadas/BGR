@@ -33,12 +33,3 @@ BEGIN
 	SELECT TagSeq.nextval INTO :NEW.id FROM dual;
 END;
 /
-
-CREATE SEQUENCE TagTypeSeq START WITH 1 INCREMENT BY 1;
-CREATE TRIGGER tagtype_in_trigger
-BEFORE INSERT ON TagType
-FOR EACH ROW
-BEGIN
-	SELECT TagTypeSeq.nextval INTO :NEW.id FROM dual;
-END;
-/
