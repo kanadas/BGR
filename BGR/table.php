@@ -4,28 +4,23 @@ function linkGame($addr, $text)
 	return "<a href=$addr>$text</a>";
 }
 
-function drowGameTable($stmt) 
+function nvl($var, $val)
 {
-	echo <<<EOT
-<table>
-	<tr>
-		<th>BGG Rank</th>
-		<th>Title</th>
-		<th>BGG Rating</th>
-		<th>Your Rating</th>
-	</tr>
-EOT;
-	$i = 1;
+	if(isset($var)) return $var;
+	return $val;
+}
+
+function drowTable($headers, $cols, $stmt, $file, $paramname, $paramcol) 
+{
+	echo "<table><tr>";
+	foreach($headers as $head) echo "<th>$head</th>";
+	echo "</tr>";
 	while($row = oci_fetch_array($stmt, OCI_BOTH))
 	{
-		$link = "game.php?id=".$row['ID'];
-		echo "<tr>
-			<td>".linkGame($link, $i)."</td>
-			<td>".linkGame($link, $row['NAME'])."</td>
-			<td>".linkGame($link, $row['BGGSCORE'])."</td>
-			<td>".linkGame($link, isset($row['RATING']) ? $row['RATING'] : "-")."</td>
-			</tr>";
-		++$i;
+		$link = "$file?$paramname=".$row[$paramcol];
+		echo "<tr>";
+		foreach($cols as $col)
+			echo "<td>".linkGame($link, nvl($row[strtoupper($col)], "-"))."</td>";
 	}
 	echo "</table>";
 }
