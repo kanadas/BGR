@@ -7,7 +7,7 @@ CREATE TABLE Game (
 	id NUMBER(4) NOT NULL PRIMARY KEY,
 	name VARCHAR2(100) NOT NULL UNIQUE,
 	year NUMBER(4) NOT NULL,
-	description VARCHAR2(4000) NOT NULL,
+	description CLOB NOT NULL,
 	bggscore NUMBER(4,2) NOT NULL,
 	designer VARCHAR2(100),
 	minplayers NUMBER(2) NOT NULL,
