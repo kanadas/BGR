@@ -8,7 +8,7 @@ from unidecode import unidecode
 os.environ["NLS_LANG"] = "AMERICAN_AMERICA.EE8ISO8859P2"
 #os.environ["NLS_LANG"] = ".AL32UTF8"
 
-TAGID = {"Type" : 1, "Category" : 2, "Mechanism" : 3, "Family" : 4, "Publisher" : 5, "Designer" : 6}
+TAGID = {"Type" : "1", "Category" : "2", "Mechanism" : "3", "Family" : "4", "Publisher" : "5", "Designer" : "6"}
 
 def getstring(x): return x.string.replace("'", "''")
 
@@ -29,7 +29,7 @@ def updatetable(cur, namelist, gameid, tagtype):
 con = cx_Oracle.connect('tk385674/salamandra@labora.mimuw.edu.pl:1521/LABS')
 gamecur = con.cursor()
 gamecur.prepare("""INSERT INTO Game (name, year, description, bggscore, minplayers, maxplayers, avgplaytime, complexity) VALUES
-                (:1, :2, :3, :4, :5, :6, :7, :8, :9)""")
+                (:1, :2, :3, :4, :5, :6, :7, :8)""")
 cur = con.cursor()
 
 
@@ -66,7 +66,10 @@ while pagenum <= 20:
         categories = list(map(getstring, game.find_all('boardgamecategory')))
         mechanisms = list(map(getstring, game.find_all('boardgamemechanic')))
         families = list(map(getstring, game.find_all('boardgamefamily')))
-        designer = list(map(getstring, game.find('boardgamedesigner')))
+        designers = list(map(getstring, game.find('boardgamedesigner')))
+
+        print(name);
+
         gamecur.execute(None, (unidecode(name), year, unidecode(description), score, minplayers, maxplayers, playingtime, complexity)) 
         cur.execute('SELECT GameSeq.currval FROM dual')
         gameid = cur.fetchone()[0]
@@ -78,9 +81,9 @@ while pagenum <= 20:
         if designers: updatetable(cur, designers, gameid, TAGID['Designer'])
     print(pagenum)
     pagenum += 1
-    #con.commit();
+    con.commit();
 
-con.commit()
+#con.commit()
 gamecur.close()
 cur.close()
 con.close()

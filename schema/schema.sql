@@ -5,14 +5,15 @@ CREATE TABLE Users (
 
 CREATE TABLE Game (
 	id NUMBER(4) NOT NULL PRIMARY KEY,
-	name VARCHAR2(100) NOT NULL UNIQUE,
+	name VARCHAR2(100) NOT NULL,
 	year NUMBER(4) NOT NULL,
 	description CLOB NOT NULL,
 	bggscore NUMBER(4,2) NOT NULL,
 	minplayers NUMBER(2) NOT NULL,
 	maxplayers NUMBER(2) NOT NULL,
 	avgplaytime NUMBER(4) NOT NULL,
-	complexity NUMBER(3,2) NOT NULL);
+	complexity NUMBER(3,2) NOT NULL,
+	CONSTRAINT game_name_year_unique UNIQUE (name, year));
 
 CREATE TABLE Rating (
 	value NUMBER(2) NOT NULL,
