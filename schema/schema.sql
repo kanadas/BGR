@@ -19,7 +19,7 @@ CREATE TABLE Rating (
 	value NUMBER(2) NOT NULL,
 	userid NUMBER(3) NOT NULL REFERENCES Users,
 	gameid NUMBER(4) NOT NULL REFERENCES Game,
-	PRIMARY KEY (value, userid));	
+	PRIMARY KEY (gameid, userid));	
 
 CREATE TABLE Publisher (
 	id NUMBER(4) NOT NULL PRIMARY KEY,

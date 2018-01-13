@@ -46,10 +46,10 @@ echo <<<EOT
 			<input type="hidden" name="id" value="$id" />
 			<select name="rating">
 EOT;
-echo "<option value disabled ".($rating == '-' ? "selected" : "").">-</option>";
+echo "<option value ".($rating == '-' ? "selected" : "").">-</option>";
 for($i = 1; $i <= 10; ++$i) echo "<option value='$i' ".($rating == $i ? "selected" : "").">$i</option>";	
 echo <<<EOT
-		</select><input type='submit' value='Submit' /></form>
+		</select><input type='submit' value='Rate' /></form>
 		</b></td>
 	</tr>
 	<tr>
