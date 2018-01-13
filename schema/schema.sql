@@ -9,7 +9,6 @@ CREATE TABLE Game (
 	year NUMBER(4) NOT NULL,
 	description CLOB NOT NULL,
 	bggscore NUMBER(4,2) NOT NULL,
-	designer VARCHAR2(100),
 	minplayers NUMBER(2) NOT NULL,
 	maxplayers NUMBER(2) NOT NULL,
 	avgplaytime NUMBER(4) NOT NULL,
@@ -20,15 +19,6 @@ CREATE TABLE Rating (
 	userid NUMBER(3) NOT NULL REFERENCES Users,
 	gameid NUMBER(4) NOT NULL REFERENCES Game,
 	PRIMARY KEY (gameid, userid));	
-
-CREATE TABLE Publisher (
-	id NUMBER(4) NOT NULL PRIMARY KEY,
-	name NVARCHAR2(100) NOT NULL UNIQUE);
-
-CREATE TABLE GamePublisher (
-	gameid NUMBER(4) NOT NULL REFERENCES Game,
-	publisherid NUMBER(4) NOT NULL REFERENCES Publisher,
-	PRIMARY KEY (gameid, publisherid));
 
 CREATE TABLE TagType (
 	id NUMBER(2) NOT NULL PRIMARY KEY,

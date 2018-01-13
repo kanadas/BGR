@@ -1,4 +1,0 @@
-DELETE FROM GameArtist;
-DELETE FROM GamePublisher;
-DELETE FROM GameTag;
-DELETE FROM Game;
