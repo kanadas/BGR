@@ -14,7 +14,6 @@ $sql = "SELECT name,
 	MaxPlayers,
 	AvgPlayTime,
 	complexity,
-	designer,
 	value as rating
 	FROM Game LEFT JOIN Rating ON
 	id = gameid AND userid = ".$_SESSION['userid']."
@@ -56,11 +55,62 @@ echo <<<EOT
 		<td width="25%">Players: $minplayers - $maxplayers</td>
 		<td width="25%">Average playing time: $time</td>
 		<td width="25%">BGG Complexity Rating: $complexity</td>
-		<td width="25%">Designer: $designer</td>
 	</tr>
 </table>
 <h3>Description:</h3><br>
 $description
+<br><br>
+<h2>Similar games:</h2><br>
 EOT;
+
+$tagtypesql = "SELECT id, name, weight FROM TagType";
+$tagtypestmt = oci_parse($conn, $tagtypesql);
+oci_execute($tagtypestmt);
+$gametagssql = "SELECT null";
+$tagtypes = 0;
+while($tagtyperow = oci_fetch_array($tagtypestmt, OCI_BOTH))
+{
+	++$tagtypes;
+	$tagtype = $tagtyperow['ID'];
+	$tagname = $tagtyperow['NAME'];
+	$tagweight = $tagtyperow['WEIGHT'];
+	$gametagssql .= ", SUM(case Tag.tagtype when $tagtype then 1 else 0 end) as $tagname ";
+}
+$gametagssql .= "FROM Game, GameTag, Tag WHERE Game.id = $id AND GameTag.gameid = Game.id AND GameTag.tagid = Tag.id GROUP BY Game.id";
+
+$gametagsstmt = oci_parse($conn, $gametagssql);
+oci_execute($gametagsstmt);
+$gametagsrow = oci_fetch_array($gametagsstmt, OCI_BOTH);
+oci_execute($tagtypestmt);
+$sql = "SELECT Game.id, Game.name, Game.BGGScore";
+$tagsum = "0";
+$tagnames = array();
+while($tagtyperow = oci_fetch_array($tagtypestmt, OCI_BOTH))
+{
+	$tagtype = $tagtyperow['ID'];
+	$tagname = $tagtyperow['NAME'];
+	$tagweight = $tagtyperow['WEIGHT'];
+	$totalcount = $gametagsrow[strtoupper($tagname)];
+	$tagsum .= " + $tagname";
+	array_push($tagnames, $tagname);
+	$sql .= ", SUM(case Tag.tagtype when $tagtype then 1 else 0 end) * $tagweight / $totalcount as $tagname ";
+}
+
+$mytags = "SELECT id FROM Tag, GameTag WHERE id = tagid AND gameid = $id";
+
+$sql .= "FROM Game, GameTag, Tag 
+	WHERE Game.id != $id AND GameTag.gameid = Game.id AND GameTag.tagid = Tag.id AND Tag.id IN ($mytags)
+	GROUP BY Game.id, Game.name, Game.BGGScore ORDER BY $tagsum DESC";
+
+$stmt = oci_parse($conn, $sql);
+oci_execute($stmt);
+
+include 'table.php';
+
+#oci_execute($gametagsstmt);
+#drowTable($tagnames, $tagnames, $gametagsstmt, "game.php", "id", "ID");
+
+drowTable(array("Game title", "BGGScore"), array("NAME", "BGGSCORE"), $stmt, "game.php", "id", "ID");
+
 include 'footer.php';
 ?>

@@ -37,6 +37,7 @@
 		if($id = oci_fetch_array($stmt))
 		{
 			$_SESSION['userid'] = $id[0];
+			$_SESSION['username'] = $name;
 			return NULL;
 		}
 		return LoginError::UserNotExists;
