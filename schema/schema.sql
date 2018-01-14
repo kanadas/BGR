@@ -37,10 +37,9 @@ CREATE TABLE GameTag (
 	tagid NUMBER(6) NOT NULL REFERENCES Tag,
 	PRIMARY KEY (gameid, tagid));
 
-CREATE VIEW PlayerTagRating AS
+CREATE VIEW UserTagRating AS
 	SELECT Rating.userid, Tag.id, SUM(Rating.value) / COUNT(*) as avgRating FROM Rating, Game, GameTag, Tag WHERE
 		Rating.gameid = Game.id AND
 		Game.id = GameTag.gameid AND
 		Tag.id = GameTag.tagid
 		GOUP BY Rating.userid, Tag.id;
-
