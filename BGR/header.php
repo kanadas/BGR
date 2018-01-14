@@ -8,6 +8,7 @@
 		echo "<ul>";
 		echo "<li>Logged as: <b>".$_SESSION['username']."</b> <a href='logout.php'><i>Logout</i></a></li>";
 		echo "<li><a href='usergames.php'>Browse rated games</a></li>";
+		echo "<li><a href='recommend.php'>Get recommendations</a></li>";
 	   	echo "</ul>";
 	}
 ?>	

@@ -8,19 +8,18 @@ if(!isset($_SESSION['userid'])) header("Location: index.php");
 include 'header.php';
 include 'table.php';
 $conn = oci_connect("tk385674", "salamandra");
-$sql = "SELECT ROWNUM as num, id, title, score, rating FROM (
-		SELECT Game.id as id, 
+$sql = "SELECT Game.id as id, 
 			Game.name as title, 
 			Game.BGGScore as score,
 			Rating.value as rating
 		FROM Game LEFT JOIN Rating 
 		ON Game.id = Rating.gameid 
 		AND Rating.userid = ".$_SESSION['userid']."
-		ORDER BY Game.BGGScore DESC)";
+		ORDER BY Game.BGGScore DESC";
 
 $stmt = oci_parse($conn, $sql);
 oci_execute($stmt);
-drowTable(array("#", "Game title", "BGGScore", "Your rating"), 
-   array("NUM", "TITLE", "SCORE", "RATING"), $stmt, "game.php", "id", "ID");
+drowTable(array("Game title", "BGGScore", "Your rating"), 
+   array("TITLE", "SCORE", "RATING"), $stmt, "game.php", "id", "ID");
 include 'footer.php';
 ?>
