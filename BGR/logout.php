@@ -1,6 +1,6 @@
 <?php	
-	ini_set('display_errors', 'On');
-	error_reporting(E_ALL - E_NOTICE);
+	#ini_set('display_errors', 'On');
+	#error_reporting(E_ALL - E_NOTICE);
 	session_start();
 	
 	$_SESSION['userid'] = NULL;
